@@ -66,6 +66,6 @@ Deploy the application to HuggingFace Spaces or Streamlit Cloud
 
 📁 Project Structure
 ├── data/
-├── notebooks/
+├── helpers.py
 ├── streamlit_demo.py
 ├── README.md
