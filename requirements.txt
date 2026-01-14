@@ -1,4 +1,6 @@
-torch
-torchvision
+pandas
+numpy
 streamlit
-pyngrok
+scikit-learn
+matplotlib
+seaborn
