@@ -22,7 +22,7 @@ st.set_page_config(page_title="Skin Cancer Prediction", layout="wide")
 st.title("Skin Cancer Detection")
 st.write("Dự đoán ung thư da dựa trên metadata bệnh nhân")
 st.header("Dataset")
-data = pd.read_csv("data/Ham10000_metadata.csv")
+data = pd.read_csv("data/HAM10000_metadata.csv")
 
 st.dataframe(data)
 
