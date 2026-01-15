@@ -1,9 +1,9 @@
 # Skin-Cancer-Detection
 This project focuses on building a **machine learning model** to detect **skin cancer (melanoma vs benign)** using patient metadata from the **HAM10000 dataset**.  
 The goal is to demonstrate an end-to-end ML pipeline, from data preprocessing to model evaluation and deployment with Streamlit.
-
 ---
-
+Link app: https://skin-cancer-detection-demo.streamlit.app/
+--- 
 ## 📌 Project Overview
 
 - **Task:** Binary classification (Melanoma vs Benign)
