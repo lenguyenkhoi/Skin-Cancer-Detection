@@ -139,47 +139,24 @@ st.write("""
          - Các biến như dx và dx_type không được sử dụng làm đặc trưng đầu vào do có nguy cơ gây ra hiện tượng data leakage, làm sai lệch kết quả đánh giá mô hình
          """)
 
-feature = ["age","sex", "localization"]
-X = balanced_data[feature]
-y= balanced_data["diagnosis_binary"]
-
 st.header("Quy trình chuẩn hóa dữ liệu")
 st.write(f"""
          - Chia dữ liệu thành tập huấn luyện và tập kiểm tra với tỷ lệ 80:20
          - Xử lý dữ liệu thiếu bằng cách sử dụng SimpleImputer với chiến lược most_frequent
          - Chuẩn hóa dữ liệu bằng StandardScaler
          """)
-X_train, X_test, y_train, y_test = train_test_split(X,y,test_size= 0.2, random_state=42)
-
-impute = SimpleImputer(strategy="most_frequent")
-X_train_impute = impute.fit_transform(X_train)
-X_test_impute = impute.transform(X_test)
-
-scaler = StandardScaler()
-X_train_scaler = scaler.fit_transform(X_train_impute)
-X_test_scaler = scaler.transform(X_test_impute)
-st.write("Kích thước tập huấn luyện:", X_train_scaler.shape)
-st.write("Kích thước tập kiểm tra:", X_test_scaler.shape)
-
-# Model
-st.header("Xây dựng mô hình SVM")
-svm_model = SVC(kernel='rbf', C=1.0, gamma='scale', random_state=42)
-svm_model.fit(X_train_scaler, y_train)
-# st.write("Mô hình SVM đã được huấn luyện thành công.")
-
+# Loadmodel 
+svm_model = joblib.load("model/svm_model_binary.pkl")
 # Đánh giá mô hình
 st.subheader("Đánh giá mô hình với SVM")
-y_pred = svm_model.predict(X_test_scaler)
-st.write(f"Accuracy {accuracy_score(y_test,y_pred)}")
-st.write(f"Precision {precision_score(y_test,y_pred)}")
-st.write(f"Recall {recall_score(y_test,y_pred)}")
-st.write(f"F1 Score {f1_score(y_test,y_pred)}")
+metrics = joblib.load("model/metrics.pkl")
+st.write(metrics)
 
 st.subheader("Classification Report")
-st.text(classification_report(y_test,y_pred,target_names=['Melanoma','Benign']))
+# st.text(classification_report(y_test,y_pred,target_names=['Melanoma','Benign']))
 # Confusion Matrix
 st.subheader("Confusion Matrix")
-cm = confusion_matrix(y_test, y_pred)
+cm = joblib.load("model/confusion_matrix.pkl")
 fig, ax = plt.subplots(figsize=(6, 5))
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, ax=ax)
 ax.set_xlabel('Predicted Label')
@@ -197,11 +174,16 @@ st.write("""
             """)
 # ROC Curve
 st.subheader("ROC Curve") 
-fpr, tpr, _ = roc_curve(y_test, y_pred)
-roc_auc = auc(fpr, tpr)
+# fpr, tpr, _ = roc_curve(y_test, y_pred)
+# roc_auc = auc(fpr, tpr)
+
+
+roc_data = joblib.load("model/roc_data.pkl")
+
+fig, ax = plt.subplots()
 
 fig, ax = plt.subplots(figsize=(6, 5))
-ax.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+ax.plot(roc_data['fpr'], roc_data['tpr'], color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_data['roc_auc']:.2f})')
 ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
 ax.set_xlim([0.0, 1.0])
 ax.set_ylim([0.0, 1.05])
@@ -220,18 +202,6 @@ st.write("""
             - Để cải thiện hơn nữa, có thể xem xét việc tinh chỉnh tham số mô hình, sử dụng các kỹ thuật tiền xử lý dữ liệu nâng cao hơn, hoặc thử nghiệm với các thuật toán phân loại khác để so sánh hiệu suất.
             """)
 
-st.subheader("Decision Boundary sau khi giảm chiều dữ liệu với PCA")
-# Apply PCA to reduce the data to 2 components for visualization
-pca = PCA(n_components=2, random_state=42)
-x_train_pca = pca.fit_transform(X_train_scaler)
-x_test_pca = pca.transform(X_test_scaler)
-
-# Train a new SVM model on the PCA-transformed data
-svm_model_pca = SVC(kernel='rbf', C=1.0, gamma='scale', random_state=42)
-svm_model_pca.fit(x_train_pca, y_train)
-
-# Now plot the decision boundary using the PCA-transformed data and the new model
-plot_decision_boundary(x_test_pca, y_test, svm_model_pca)
 
 # Dự đoán 
 
@@ -247,6 +217,8 @@ input_data = pd.DataFrame({
     "localization": data_no_null['localization'].map(lambda x: le.transform([x])[0] if x in le.classes_ else -1).get(localization, -1)  
 })
 # Xử lý dữ liệu thiếu và chuẩn hóa
+impute = joblib.load("model/imputer.pkl")
+scaler = joblib.load("model/scaler.pkl")
 input_data_impute = impute.transform(input_data)
 input_data_scaler = scaler.transform(input_data_impute)
 # Dự đoán
