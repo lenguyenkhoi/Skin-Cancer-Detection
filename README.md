@@ -66,6 +66,9 @@ Deploy the application to HuggingFace Spaces or Streamlit Cloud
 
 📁 Project Structure
 ├── data/
+├── model/
 ├── helpers.py
 ├── streamlit_demo.py
 ├── README.md
+├── multi_class.py
+├── prepare_data.ipynb
